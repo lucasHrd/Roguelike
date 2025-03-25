@@ -1,4 +1,4 @@
-package com.mygdx.roguelikeproject;
+package com.mygdx.roguelikeproject.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -7,28 +7,30 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.roguelikeproject.world.GameMap;
+
 import java.util.List;
 
 public class Player {
     private float x, y;
-    private float speed = 150;
+    private final float speed = 150f;
     private Direction lastDirection;
     private float stateTime;
-    private GameMap gameMap; // Référence à la carte
+    private final GameMap gameMap;
     private int health;
-    private int maxHealth = 100;
+    private final int maxHealth = 100;
     private boolean isInvincible;
     private float invincibilityTimer;
-    private static final float INVINCIBILITY_DURATION = 1.0f;
-    private ShapeRenderer shapeRenderer;
+    private static final float INVINCIBILITY_DURATION = 1f;
 
-    private Animation<TextureRegion> walkUpAnimation;
-    private Animation<TextureRegion> walkDownAnimation;
-    private Animation<TextureRegion> walkLeftAnimation;
-    private Animation<TextureRegion> walkRightAnimation;
-    private TextureRegion idleFrame;
+    private final ShapeRenderer shapeRenderer;
 
-    private Texture walkUp1, walkUp2, walkDown1, walkDown2, walkLeft1, walkLeft2, walkRight1, walkRight2;
+    private final Animation<TextureRegion> walkUpAnimation;
+    private final Animation<TextureRegion> walkDownAnimation;
+    private final Animation<TextureRegion> walkLeftAnimation;
+    private final Animation<TextureRegion> walkRightAnimation;
+
+    private final Texture walkUp1, walkUp2, walkDown1, walkDown2, walkLeft1, walkLeft2, walkRight1, walkRight2;
 
     public enum Direction {
         LEFT, RIGHT, UP, DOWN
@@ -45,7 +47,6 @@ public class Player {
         invincibilityTimer = 0;
         shapeRenderer = new ShapeRenderer();
 
-        // Charger les textures
         walkUp1 = new Texture("assets/walk_up1.png");
         walkUp2 = new Texture("assets/walk_up2.png");
         walkDown1 = new Texture("assets/walk_down1.png");
@@ -59,22 +60,14 @@ public class Player {
         walkDownAnimation = new Animation<>(0.3f, new TextureRegion(walkDown1), new TextureRegion(walkDown2));
         walkLeftAnimation = new Animation<>(0.3f, new TextureRegion(walkLeft1), new TextureRegion(walkLeft2));
         walkRightAnimation = new Animation<>(0.3f, new TextureRegion(walkRight1), new TextureRegion(walkRight2));
-
-        idleFrame = new TextureRegion(walkDown1);
     }
 
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
+    public float getX() { return x; }
+    public float getY() { return y; }
 
     public void handleInput(float deltaTime, List<Projectile> projectiles) {
         boolean isMoving = false;
-        float newX = x;
-        float newY = y;
+        float newX = x, newY = y;
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.Q)) {
             newX -= speed * deltaTime;
@@ -97,7 +90,7 @@ public class Player {
             isMoving = true;
         }
 
-        if (!gameMap.isWall((int)newX, (int)newY)) {
+        if (!gameMap.isWall((int) newX, (int) newY)) {
             x = newX;
             y = newY;
         }
@@ -106,24 +99,18 @@ public class Player {
             projectiles.add(new Projectile(x, y, lastDirection));
         }
 
-        if (isMoving) {
-            stateTime += deltaTime;
-        } else {
-            stateTime = 0;
-        }
+        stateTime = isMoving ? stateTime + deltaTime : 0;
 
         if (isInvincible) {
             invincibilityTimer -= deltaTime;
-            if (invincibilityTimer <= 0) {
-                isInvincible = false;
-            }
+            if (invincibilityTimer <= 0) isInvincible = false;
         }
     }
 
     public void takeDamage(int damage) {
         if (!isInvincible) {
             health -= damage;
-            if (health < 0) health = 0;
+            health = Math.max(0, health);
             isInvincible = true;
             invincibilityTimer = INVINCIBILITY_DURATION;
         }
@@ -132,41 +119,27 @@ public class Player {
     public void draw(SpriteBatch batch) {
         TextureRegion currentFrame;
         switch (lastDirection) {
-            case LEFT:
-                currentFrame = walkLeftAnimation.getKeyFrame(stateTime, true);
-                break;
-            case RIGHT:
-                currentFrame = walkRightAnimation.getKeyFrame(stateTime, true);
-                break;
-            case UP:
-                currentFrame = walkUpAnimation.getKeyFrame(stateTime, true);
-                break;
-            case DOWN:
-            default:
-                currentFrame = walkDownAnimation.getKeyFrame(stateTime, true);
-                break;
+            case LEFT -> currentFrame = walkLeftAnimation.getKeyFrame(stateTime, true);
+            case RIGHT -> currentFrame = walkRightAnimation.getKeyFrame(stateTime, true);
+            case UP -> currentFrame = walkUpAnimation.getKeyFrame(stateTime, true);
+            case DOWN -> currentFrame = walkDownAnimation.getKeyFrame(stateTime, true);
+            default -> currentFrame = new TextureRegion(walkDown1);
         }
         batch.draw(currentFrame, x, y);
     }
 
-    public void drawHealthBar(SpriteBatch batch) {
+    public void drawHealthBar() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0, 0, 0, 1);
         shapeRenderer.rect(x - 10, y + 40, 50, 5);
         shapeRenderer.setColor(1, 0, 0, 1);
-        shapeRenderer.rect(x - 10, y + 40, (50 * health) / maxHealth, 5);
+        shapeRenderer.rect(x - 10, y + 40, (50f * health) / maxHealth, 5);
         shapeRenderer.end();
     }
 
     public void dispose() {
-        walkUp1.dispose();
-        walkUp2.dispose();
-        walkDown1.dispose();
-        walkDown2.dispose();
-        walkLeft1.dispose();
-        walkLeft2.dispose();
-        walkRight1.dispose();
-        walkRight2.dispose();
+        walkUp1.dispose(); walkUp2.dispose(); walkDown1.dispose(); walkDown2.dispose();
+        walkLeft1.dispose(); walkLeft2.dispose(); walkRight1.dispose(); walkRight2.dispose();
         shapeRenderer.dispose();
     }
 }

@@ -1,0 +1,15 @@
+default-round
+  rotate: false
+  xy: 2, 34
+  size: 60, 20
+  orig: 60, 20
+  offset: 0, 0
+  index: -1
+
+default-round-down
+  rotate: false
+  xy: 2, 2
+  size: 60, 20
+  orig: 60, 20
+  offset: 0, 0
+  index: -1

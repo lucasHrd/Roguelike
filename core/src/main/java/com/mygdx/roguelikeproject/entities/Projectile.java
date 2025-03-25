@@ -1,19 +1,20 @@
-package com.mygdx.roguelikeproject;
+package com.mygdx.roguelikeproject.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.roguelikeproject.Player.Direction;
+import com.mygdx.roguelikeproject.entities.Player.Direction;
 
 public class Projectile {
     private static final float SPEED = 500;
     private static Texture texture;
-    public float x, y;
-    private Direction direction;
+
+    private float x, y;
+    private final Direction direction;
 
     public Projectile(float x, float y, Direction direction) {
         if (texture == null) {
-            texture = new Texture("C:\\Users\\mehdi\\Desktop\\L3\\genie logiciel\\RGLK_PRJKT\\assets\\balle_left.png");
+            texture = new Texture("assets/balle_left.png");
         }
         this.x = x;
         this.y = y;
@@ -22,18 +23,10 @@ public class Projectile {
 
     public void update(float deltaTime) {
         switch (direction) {
-            case LEFT:
-                x -= SPEED * deltaTime;
-                break;
-            case RIGHT:
-                x += SPEED * deltaTime;
-                break;
-            case UP:
-                y += SPEED * deltaTime;
-                break;
-            case DOWN:
-                y -= SPEED * deltaTime;
-                break;
+            case LEFT -> x -= SPEED * deltaTime;
+            case RIGHT -> x += SPEED * deltaTime;
+            case UP -> y += SPEED * deltaTime;
+            case DOWN -> y -= SPEED * deltaTime;
         }
     }
 
