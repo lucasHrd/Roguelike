@@ -3,11 +3,15 @@ package com.mygdx.roguelikeproject.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.roguelikeproject.*;
+import com.mygdx.roguelikeproject.RoguelikeProject;
+import com.mygdx.roguelikeproject.entities.EnemyBase;
 import com.mygdx.roguelikeproject.entities.Player;
 import com.mygdx.roguelikeproject.entities.Projectile;
+import com.mygdx.roguelikeproject.managers.BasicWave;
+import com.mygdx.roguelikeproject.managers.WaveManager;
+import com.mygdx.roguelikeproject.utils.Constants;
+import com.mygdx.roguelikeproject.utils.Hitbox;
 import com.mygdx.roguelikeproject.world.GameMap;
 
 import java.util.ArrayList;
@@ -20,7 +24,9 @@ public class GameScreen extends ScreenAdapter {
     private SpriteBatch batch;
     private Player player;
     private List<Projectile> projectiles;
+    private List<EnemyBase> enemies;
     private GameMap gameMap;
+    private WaveManager waveManager;
 
     public GameScreen(RoguelikeProject game) {
         this.game = game;
@@ -30,8 +36,10 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         batch = new SpriteBatch();
         projectiles = new ArrayList<>();
+        enemies = new ArrayList<>();
         gameMap = new GameMap();
         player = new Player(gameMap);
+        waveManager = new BasicWave(player);
     }
 
     @Override
@@ -40,7 +48,10 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         player.handleInput(delta, projectiles);
+        waveManager.update(delta, enemies);
         updateProjectiles(delta);
+        updateEnemies(delta);
+        checkEnemyCollisions();
 
         batch.begin();
         gameMap.render(batch);
@@ -48,16 +59,53 @@ public class GameScreen extends ScreenAdapter {
         for (Projectile projectile : projectiles) {
             projectile.draw(batch);
         }
+        for (EnemyBase enemy : enemies) {
+            enemy.draw(batch);
+        }
         batch.end();
+
+        player.drawHealthBarCentered();
     }
 
     private void updateProjectiles(float deltaTime) {
-        Iterator<Projectile> iter = projectiles.iterator();
-        while (iter.hasNext()) {
-            Projectile projectile = iter.next();
+        Iterator<Projectile> projectileIter = projectiles.iterator();
+        while (projectileIter.hasNext()) {
+            Projectile projectile = projectileIter.next();
             projectile.update(deltaTime);
+
             if (projectile.isOutOfBounds()) {
-                iter.remove();
+                projectileIter.remove();
+                continue;
+            }
+
+            Iterator<EnemyBase> enemyIter = enemies.iterator();
+            while (enemyIter.hasNext()) {
+                EnemyBase enemy = enemyIter.next();
+                if (projectile.getHitbox().overlaps(enemy.getHitbox())) {
+                    enemy.takeDamage(Constants.PROJECTILE_DAMAGE);
+                    projectileIter.remove();
+
+                    if (enemy.isDead()) {
+                        enemyIter.remove();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    private void updateEnemies(float deltaTime) {
+        for (EnemyBase enemy : enemies) {
+            enemy.update(deltaTime);
+        }
+    }
+
+    private void checkEnemyCollisions() {
+        Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // taille à ajuster
+
+        for (EnemyBase enemy : enemies) {
+            if (playerHitbox.overlaps(enemy.getHitbox()) && !player.getDamageable().isInvincible()) {
+                player.takeDamage(Constants.ENEMY_CONTACT_DAMAGE);
             }
         }
     }

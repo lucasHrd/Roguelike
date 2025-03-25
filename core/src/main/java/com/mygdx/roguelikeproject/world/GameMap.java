@@ -39,6 +39,7 @@ public class GameMap {
                 }
             }
         }
+
     }
 
     public boolean isWall(int x, int y) {

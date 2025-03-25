@@ -4,13 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.roguelikeproject.entities.Player.Direction;
+import com.mygdx.roguelikeproject.utils.Constants;
+import com.mygdx.roguelikeproject.utils.Hitbox;
 
 public class Projectile {
-    private static final float SPEED = 500;
+    private static final float SPEED = 500f;
     private static Texture texture;
-
     private float x, y;
     private final Direction direction;
+    private final float width = 16;
+    private final float height = 16;
 
     public Projectile(float x, float y, Direction direction) {
         if (texture == null) {
@@ -30,12 +33,16 @@ public class Projectile {
         }
     }
 
+    public void draw(SpriteBatch batch) {
+        batch.draw(texture, x, y);
+    }
+
     public boolean isOutOfBounds() {
         return x < 0 || x > Gdx.graphics.getWidth() || y < 0 || y > Gdx.graphics.getHeight();
     }
 
-    public void draw(SpriteBatch batch) {
-        batch.draw(texture, x, y);
+    public Hitbox getHitbox() {
+        return new Hitbox(x, y, width, height);
     }
 
     public static void dispose() {

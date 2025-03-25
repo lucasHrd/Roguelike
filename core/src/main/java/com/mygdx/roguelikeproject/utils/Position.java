@@ -1,4 +1,3 @@
 package com.mygdx.roguelikeproject.utils;
 
-public class Position {
-}
+public record Position(float x, float y) {}

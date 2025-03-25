@@ -1,3 +1,4 @@
+// 📁 Fichier : entities/Player.java
 package com.mygdx.roguelikeproject.entities;
 
 import com.badlogic.gdx.Gdx;
@@ -7,22 +8,18 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.mygdx.roguelikeproject.utils.*;
 import com.mygdx.roguelikeproject.world.GameMap;
 
 import java.util.List;
 
 public class Player {
-    private float x, y;
-    private final float speed = 150f;
+    private Position position;
     private Direction lastDirection;
     private float stateTime;
     private final GameMap gameMap;
-    private int health;
-    private final int maxHealth = 100;
-    private boolean isInvincible;
-    private float invincibilityTimer;
-    private static final float INVINCIBILITY_DURATION = 1f;
-
+    private final Damageable damageable;
+    private final MovementSpeed speed;
     private final ShapeRenderer shapeRenderer;
 
     private final Animation<TextureRegion> walkUpAnimation;
@@ -32,19 +29,15 @@ public class Player {
 
     private final Texture walkUp1, walkUp2, walkDown1, walkDown2, walkLeft1, walkLeft2, walkRight1, walkRight2;
 
-    public enum Direction {
-        LEFT, RIGHT, UP, DOWN
-    }
+    public enum Direction { LEFT, RIGHT, UP, DOWN }
 
     public Player(GameMap gameMap) {
         this.gameMap = gameMap;
-        x = Gdx.graphics.getWidth() / 2f;
-        y = Gdx.graphics.getHeight() / 2f;
+        this.damageable = new Damageable(Constants.PLAYER_MAX_HEALTH, Constants.PLAYER_INVINCIBILITY_DURATION);
+        this.speed = new MovementSpeed(Constants.PLAYER_BASE_SPEED);
+        this.position = new Position(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         lastDirection = Direction.UP;
         stateTime = 0;
-        health = maxHealth;
-        isInvincible = false;
-        invincibilityTimer = 0;
         shapeRenderer = new ShapeRenderer();
 
         walkUp1 = new Texture("assets/walk_up1.png");
@@ -62,58 +55,57 @@ public class Player {
         walkRightAnimation = new Animation<>(0.3f, new TextureRegion(walkRight1), new TextureRegion(walkRight2));
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
+    public float getX() { return position.x(); }
+    public float getY() { return position.y(); }
+    public Damageable getDamageable() { return damageable; }
 
     public void handleInput(float deltaTime, List<Projectile> projectiles) {
         boolean isMoving = false;
-        float newX = x, newY = y;
+        float newX = position.x();
+        float newY = position.y();
+
+        float currentSpeed = speed.get();
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            newX -= speed * deltaTime;
+            newX -= currentSpeed * deltaTime;
             lastDirection = Direction.LEFT;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            newX += speed * deltaTime;
+            newX += currentSpeed * deltaTime;
             lastDirection = Direction.RIGHT;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.Z)) {
-            newY += speed * deltaTime;
+            newY += currentSpeed * deltaTime;
             lastDirection = Direction.UP;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
-            newY -= speed * deltaTime;
+            newY -= currentSpeed * deltaTime;
             lastDirection = Direction.DOWN;
             isMoving = true;
         }
 
-        if (!gameMap.isWall((int) newX, (int) newY)) {
-            x = newX;
-            y = newY;
+        if (!gameMap.isWall((int)newX, (int)newY)) {
+            position = new Position(newX, newY);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            projectiles.add(new Projectile(x, y, lastDirection));
+            projectiles.add(new Projectile(position.x(), position.y(), lastDirection));
         }
 
-        stateTime = isMoving ? stateTime + deltaTime : 0;
-
-        if (isInvincible) {
-            invincibilityTimer -= deltaTime;
-            if (invincibilityTimer <= 0) isInvincible = false;
+        if (isMoving) {
+            stateTime += deltaTime;
+        } else {
+            stateTime = 0;
         }
+
+        damageable.update(deltaTime);
     }
 
-    public void takeDamage(int damage) {
-        if (!isInvincible) {
-            health -= damage;
-            health = Math.max(0, health);
-            isInvincible = true;
-            invincibilityTimer = INVINCIBILITY_DURATION;
-        }
+    public void takeDamage(int dmg) {
+        damageable.takeDamage(dmg);
     }
 
     public void draw(SpriteBatch batch) {
@@ -122,18 +114,24 @@ public class Player {
             case LEFT -> currentFrame = walkLeftAnimation.getKeyFrame(stateTime, true);
             case RIGHT -> currentFrame = walkRightAnimation.getKeyFrame(stateTime, true);
             case UP -> currentFrame = walkUpAnimation.getKeyFrame(stateTime, true);
-            case DOWN -> currentFrame = walkDownAnimation.getKeyFrame(stateTime, true);
-            default -> currentFrame = new TextureRegion(walkDown1);
+            default -> currentFrame = walkDownAnimation.getKeyFrame(stateTime, true);
         }
-        batch.draw(currentFrame, x, y);
+        batch.draw(currentFrame, position.x(), position.y());
     }
 
-    public void drawHealthBar() {
+    public void drawHealthBarCentered() {
+        float barWidth = Constants.HEALTHBAR_WIDTH;
+        float barHeight = Constants.HEALTHBAR_HEIGHT;
+        float x = (Gdx.graphics.getWidth() - barWidth) / 2f;
+        float y = Constants.HEALTHBAR_Y_OFFSET;
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0, 0, 0, 1);
-        shapeRenderer.rect(x - 10, y + 40, 50, 5);
+        shapeRenderer.setColor(0.4f, 0, 0, 1);
+        shapeRenderer.rect(x, y, barWidth, barHeight);
+
         shapeRenderer.setColor(1, 0, 0, 1);
-        shapeRenderer.rect(x - 10, y + 40, (50f * health) / maxHealth, 5);
+        shapeRenderer.rect(x, y, barWidth * damageable.getHealthRatio(), barHeight);
+
         shapeRenderer.end();
     }
 
