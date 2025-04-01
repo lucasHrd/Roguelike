@@ -3,12 +3,13 @@ package com.mygdx.roguelikeproject.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.roguelikeproject.RoguelikeProject;
 
-public class MenuScreen implements Screen {
+public class DeathScreen extends ScreenAdapter {
 
     private final RoguelikeProject game;
     private SpriteBatch batch;
@@ -20,7 +21,7 @@ public class MenuScreen implements Screen {
     private float jouerX, jouerY;
     private float quitterX, quitterY;
 
-    public MenuScreen(RoguelikeProject game) {
+    public DeathScreen(RoguelikeProject game) {
         this.game = game;
     }
 
@@ -28,7 +29,7 @@ public class MenuScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        background = new Texture("assets/background3.jpg");
+        background = new Texture("assets/death_screen.jpeg");
         jouerBtn = new Texture("assets/jouer2.jpg");
         quitterBtn = new Texture("assets/quitter2.jpg");
 

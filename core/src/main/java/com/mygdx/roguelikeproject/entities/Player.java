@@ -108,6 +108,10 @@ public class Player {
         damageable.takeDamage(dmg);
     }
 
+    public boolean isDead() {
+        return damageable.isDead();
+    }
+
     public void draw(SpriteBatch batch) {
         TextureRegion currentFrame;
         switch (lastDirection) {

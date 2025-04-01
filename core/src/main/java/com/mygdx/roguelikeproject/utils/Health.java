@@ -14,6 +14,8 @@ public class Health {
         current = Math.max(0, current - amount);
     }
 
+    public void isDead(int amount) {current = 0;}
+
     public void heal(int amount) {
         current = Math.min(max, current + amount);
     }

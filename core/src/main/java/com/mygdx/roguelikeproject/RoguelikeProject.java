@@ -5,6 +5,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.mygdx.roguelikeproject.screens.MenuScreen;
 import com.mygdx.roguelikeproject.screens.GameScreen;
+import com.mygdx.roguelikeproject.screens.DeathScreen;
+
 
 public class RoguelikeProject extends Game {
 
@@ -26,5 +28,9 @@ public class RoguelikeProject extends Game {
         config.setForegroundFPS(60);
 
         new Lwjgl3Application(new RoguelikeProject(), config);
+    }
+
+    public void endGame() {
+        setScreen(new DeathScreen(this));
     }
 }

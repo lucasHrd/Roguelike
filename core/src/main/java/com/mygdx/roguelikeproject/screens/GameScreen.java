@@ -100,6 +100,7 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
+
     private void checkEnemyCollisions() {
         Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // taille à ajuster
 
