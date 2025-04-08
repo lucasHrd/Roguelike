@@ -1,4 +1,3 @@
-// 📁 Fichier : screens/DeathScreen.java
 package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
@@ -22,9 +21,14 @@ public class DeathScreen implements Screen {
     private Texture rejouerBtn;
     private Texture accueilBtn;
     private Texture quitterBtn;
+    private Texture background;
 
-    private float centerX, startY;
-    private float spacing = 20;
+    // Paramètres pour les boutons
+    private float btnWidth = 150;
+    private float btnHeight = 60;
+    private float btnSpacing = 20;
+    private float startX;
+    private float btnY;
 
     public DeathScreen(RoguelikeProject game, float timeSurvived) {
         this.game = game;
@@ -37,12 +41,15 @@ public class DeathScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
 
-        rejouerBtn = new Texture("assets/rejouer.png");
-        accueilBtn = new Texture("assets/accueil.png");
-        quitterBtn = new Texture("assets/quitter.png");
+        background = new Texture("assets/death_screen.jpeg");
+        rejouerBtn = new Texture("assets/replay.png");
+        accueilBtn = new Texture("assets/menu.png");
+        quitterBtn = new Texture("assets/quitter2.jpg");
 
-        centerX = Gdx.graphics.getWidth() / 2f - rejouerBtn.getWidth() / 2f;
-        startY = Gdx.graphics.getHeight() / 2f + rejouerBtn.getHeight() + spacing;
+        // Calcul des positions pour aligner les boutons horizontalement
+        float totalWidth = 3 * btnWidth + 2 * btnSpacing;
+        startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
+        btnY = 50; // Bas de l'écran
     }
 
     @Override
@@ -56,28 +63,34 @@ public class DeathScreen implements Screen {
         shapeRenderer.end();
 
         batch.begin();
-        font.draw(batch, "Temps de survie : " + (int) timeSurvived + "s", centerX, startY + 100);
-        batch.draw(rejouerBtn, centerX, startY);
-        batch.draw(accueilBtn, centerX, startY - rejouerBtn.getHeight() - spacing);
-        batch.draw(quitterBtn, centerX, startY - 2 * (rejouerBtn.getHeight() + spacing));
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        font.draw(batch, "Temps de survie : " + (int) timeSurvived + "s",
+            Gdx.graphics.getWidth() / 2f - 60, Gdx.graphics.getHeight() - 80);
+
+        // Dessiner les boutons alignés
+        batch.draw(rejouerBtn, startX, btnY, btnWidth, btnHeight);
+        batch.draw(accueilBtn, startX + btnWidth + btnSpacing, btnY, btnWidth, btnHeight);
+        batch.draw(quitterBtn, startX + 2 * (btnWidth + btnSpacing), btnY, btnWidth, btnHeight);
         batch.end();
 
+        // Gérer les clics
         if (Gdx.input.justTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            if (isClicked(mouseX, mouseY, centerX, startY, rejouerBtn)) {
+            if (isClicked(mouseX, mouseY, startX, btnY, btnWidth, btnHeight)) {
                 game.startGame();
-            } else if (isClicked(mouseX, mouseY, centerX, startY - rejouerBtn.getHeight() - spacing, accueilBtn)) {
+            } else if (isClicked(mouseX, mouseY, startX + btnWidth + btnSpacing, btnY, btnWidth, btnHeight)) {
                 game.returnToMenu();
-            } else if (isClicked(mouseX, mouseY, centerX, startY - 2 * (rejouerBtn.getHeight() + spacing), quitterBtn)) {
+            } else if (isClicked(mouseX, mouseY, startX + 2 * (btnWidth + btnSpacing), btnY, btnWidth, btnHeight)) {
                 Gdx.app.exit();
             }
         }
     }
 
-    private boolean isClicked(float mx, float my, float x, float y, Texture btn) {
-        return mx >= x && mx <= x + btn.getWidth() && my >= y && my <= y + btn.getHeight();
+    private boolean isClicked(float mx, float my, float x, float y, float width, float height) {
+        return mx >= x && mx <= x + width && my >= y && my <= y + height;
     }
 
     @Override public void resize(int width, int height) {}
@@ -93,5 +106,6 @@ public class DeathScreen implements Screen {
         rejouerBtn.dispose();
         accueilBtn.dispose();
         quitterBtn.dispose();
+        background.dispose();
     }
 }

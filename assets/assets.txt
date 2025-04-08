@@ -16,10 +16,12 @@ duck2.png
 fond_blanc.png
 jouer2.jpg
 libgdx.png
+menu.png
 perso.png
 quitter.png
 quitter2.jpg
 rejouer.png
+replay.png
 stone1.png
 uiskin.atlas
 uiskin.json
