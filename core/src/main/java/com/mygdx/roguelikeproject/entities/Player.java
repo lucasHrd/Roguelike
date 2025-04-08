@@ -104,7 +104,6 @@ public class Player {
         damageable.update(deltaTime);
     }
 
-
     public void takeDamage(int dmg) {
         damageable.takeDamage(dmg);
     }
