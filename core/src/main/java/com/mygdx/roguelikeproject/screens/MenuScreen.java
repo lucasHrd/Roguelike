@@ -28,7 +28,7 @@ public class MenuScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        background = new Texture("assets/background3.jpg");
+        background = new Texture("assets/background.png");
         jouerBtn = new Texture("assets/jouer2.jpg");
         quitterBtn = new Texture("assets/quitter2.jpg");
 
