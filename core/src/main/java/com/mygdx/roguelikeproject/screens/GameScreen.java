@@ -2,8 +2,10 @@
 package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.roguelikeproject.RoguelikeProject;
 import com.mygdx.roguelikeproject.entities.EnemyBase;
@@ -30,6 +32,12 @@ public class GameScreen extends ScreenAdapter {
     private WaveManager waveManager;
     private float elapsedTime;
 
+    // Variable qui gère l'état de pause
+    private boolean isPaused = false;
+    // Bouton pour reprendre la partie
+    private Texture resumeBtn;
+    private float resumeX, resumeY;
+
     public GameScreen(RoguelikeProject game) {
         this.game = game;
     }
@@ -42,6 +50,11 @@ public class GameScreen extends ScreenAdapter {
         gameMap = new GameMap();
         player = new Player(gameMap);
         waveManager = new BasicWave(player);
+
+        // Chargement de l'image "Reprendre" et calcul de ses coordonnées centrées
+        resumeBtn = new Texture("assets/jouer2.jpg");
+        resumeX = Gdx.graphics.getWidth() / 2f - resumeBtn.getWidth() / 2f;
+        resumeY = Gdx.graphics.getHeight() / 2f - resumeBtn.getHeight() / 2f;
         elapsedTime = 0f;
     }
 
@@ -54,15 +67,24 @@ public class GameScreen extends ScreenAdapter {
             return;
         }
 
+        // Détection de la touche Échap pour basculer l'état de pause
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            isPaused = !isPaused;
+        }
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        player.handleInput(delta, projectiles);
-        waveManager.update(delta, enemies);
-        updateProjectiles(delta);
-        updateEnemies(delta);
-        checkEnemyCollisions();
+        // Mise à jour du jeu uniquement si on n'est pas en pause
+        if (!isPaused) {
+            player.handleInput(delta, projectiles);
+            waveManager.update(delta, enemies);
+            updateProjectiles(delta);
+            updateEnemies(delta);
+            checkEnemyCollisions();
+        }
 
+        // Affichage
         batch.begin();
         gameMap.render(batch);
         player.draw(batch);
@@ -72,9 +94,24 @@ public class GameScreen extends ScreenAdapter {
         for (EnemyBase enemy : enemies) {
             enemy.draw(batch);
         }
+        // Si le jeu est en pause, affiche le bouton "Reprendre"
+        if (isPaused) {
+            batch.draw(resumeBtn, resumeX, resumeY);
+        }
         batch.end();
 
         player.drawHealthBarCentered();
+
+        // Si en pause et que l'on clique, vérifie si le bouton "Reprendre" a été cliqué
+        if (isPaused && Gdx.input.justTouched()) {
+            float mouseX = Gdx.input.getX();
+            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+            if (mouseX >= resumeX && mouseX <= resumeX + resumeBtn.getWidth()
+                && mouseY >= resumeY && mouseY <= resumeY + resumeBtn.getHeight()) {
+                isPaused = false; // Reprend le jeu
+            }
+        }
     }
 
     private void updateProjectiles(float deltaTime) {
@@ -94,7 +131,6 @@ public class GameScreen extends ScreenAdapter {
                 if (projectile.getHitbox().overlaps(enemy.getHitbox())) {
                     enemy.takeDamage(Constants.PROJECTILE_DAMAGE);
                     projectileIter.remove();
-
                     if (enemy.isDead()) {
                         enemyIter.remove();
                     }
@@ -111,8 +147,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void checkEnemyCollisions() {
-        Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // taille à ajuster
-
+        Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // ajuster la taille si besoin
         for (EnemyBase enemy : enemies) {
             if (playerHitbox.overlaps(enemy.getHitbox()) && !player.getDamageable().isInvincible()) {
                 player.takeDamage(Constants.ENEMY_CONTACT_DAMAGE);
@@ -124,5 +159,6 @@ public class GameScreen extends ScreenAdapter {
     public void dispose() {
         batch.dispose();
         player.dispose();
+        resumeBtn.dispose();
     }
 }

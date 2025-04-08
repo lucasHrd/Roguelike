@@ -5,6 +5,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.mygdx.roguelikeproject.screens.MenuScreen;
 import com.mygdx.roguelikeproject.screens.GameScreen;
+import com.mygdx.roguelikeproject.screens.DeathScreen;
+
 
 public class RoguelikeProject extends Game {
 
@@ -18,13 +20,16 @@ public class RoguelikeProject extends Game {
     }
 
     public void startGame() {
-        // Lancer la partie (nouvelle instance à chaque fois)
         setScreen(new GameScreen(this));
     }
 
     public void returnToMenu() {
         // Revenir au menu depuis un autre écran
         setScreen(menuScreen);
+    }
+
+    public void endGame() {
+        setScreen(new DeathScreen(this));
     }
 
     public static void main(String[] args) {
