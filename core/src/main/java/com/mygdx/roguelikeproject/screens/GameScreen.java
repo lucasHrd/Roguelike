@@ -1,3 +1,4 @@
+// 📁 Fichier : screens/GameScreen.java
 package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
@@ -27,6 +28,7 @@ public class GameScreen extends ScreenAdapter {
     private List<EnemyBase> enemies;
     private GameMap gameMap;
     private WaveManager waveManager;
+    private float elapsedTime;
 
     public GameScreen(RoguelikeProject game) {
         this.game = game;
@@ -40,10 +42,18 @@ public class GameScreen extends ScreenAdapter {
         gameMap = new GameMap();
         player = new Player(gameMap);
         waveManager = new BasicWave(player);
+        elapsedTime = 0f;
     }
 
     @Override
     public void render(float delta) {
+        elapsedTime += delta;
+
+        if (player.getDamageable().isDead()) {
+            game.setScreen(new DeathScreen(game, elapsedTime));
+            return;
+        }
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -99,7 +109,6 @@ public class GameScreen extends ScreenAdapter {
             enemy.update(deltaTime);
         }
     }
-
 
     private void checkEnemyCollisions() {
         Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // taille à ajuster

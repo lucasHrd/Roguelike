@@ -33,7 +33,7 @@ public class Player {
 
     public Player(GameMap gameMap) {
         this.gameMap = gameMap;
-        this.damageable = new Damageable(Constants.PLAYER_MAX_HEALTH, Constants.PLAYER_INVINCIBILITY_DURATION);
+        this.damageable = new Damageable(20, Constants.PLAYER_INVINCIBILITY_DURATION);
         this.speed = new MovementSpeed(Constants.PLAYER_BASE_SPEED);
         this.position = new Position(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
         lastDirection = Direction.UP;
