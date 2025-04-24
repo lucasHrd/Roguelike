@@ -29,7 +29,8 @@ public class RoguelikeProject extends Game {
     }
 
     public void endGame() {
-        setScreen(new DeathScreen(this));
+        // Afficher l'écran de mort qui prend en param
+        setScreen(new DeathScreen(this, 50));
     }
 
     public static void main(String[] args) {

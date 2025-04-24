@@ -2,6 +2,7 @@
 Rock1.png
 Run.png
 Walk.png
+accueil.png
 background.png
 background2.jpg
 background3.jpg
@@ -13,12 +14,14 @@ default.png
 duck1.png
 duck2.png
 fond_blanc.png
-jouer.png
 jouer2.jpg
 libgdx.png
+menu.png
 perso.png
 quitter.png
 quitter2.jpg
+rejouer.png
+replay.png
 stone1.png
 uiskin.atlas
 uiskin.json
