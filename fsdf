@@ -1,0 +1,29 @@
+[33mcommit 02c479dc8d535de76a23ba85a36a6fc8cd4cbd71[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32minit_dev[m[33m, [m[1;31morigin/init_dev[m[33m)[m
+Author: Ayoub <a77.ayoub@gmail.com>
+Date:   Tue Mar 25 16:59:41 2025 +0100
+
+    add health, enemies, waves, managers, hitbox, position, utils constants, damaged
+
+[33mcommit e137e2f631026237fb2aa6fb52a82a963cac7a2d[m
+Author: Ayoub <a77.ayoub@gmail.com>
+Date:   Tue Mar 25 16:07:36 2025 +0100
+
+    Ajout vie et utils
+
+[33mcommit 0b6e425d3352348627905ce22ad6ccd9ca5fddb0[m
+Author: Ayoub <a77.ayoub@gmail.com>
+Date:   Tue Mar 25 15:02:02 2025 +0100
+
+    VERSION A REPRENDRE ORGANISER
+
+[33mcommit 26519cec31f62138cf241a1f9f8d8fe3b716ee6b[m
+Author: Mehdi Atmane <mehdi.atmane@etu.u-paris.fr>
+Date:   Tue Mar 25 14:17:19 2025 +0100
+
+    Base projet init
+
+[33mcommit 93c0703958da5a000316fea81d10d8ee106cf6ba[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Lucas H <119487762+lucasHrd@users.noreply.github.com>
+Date:   Tue Mar 25 13:54:42 2025 +0100
+
+    Initial commit
