@@ -1,4 +1,4 @@
-// 📁 Fichier : screens/GameScreen.java
+// 📁 screens/GameScreen.java
 package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
@@ -32,11 +32,18 @@ public class GameScreen extends ScreenAdapter {
     private WaveManager waveManager;
     private float elapsedTime;
 
-    // Variable qui gère l'état de pause
     private boolean isPaused = false;
-    // Bouton pour reprendre la partie
-    private Texture resumeBtn;
-    private float resumeX, resumeY;
+
+    // Pause menu images
+    private Texture pauseBackground;
+    private Texture resumeButton;
+    private Texture restartButton;
+    private Texture menuButton;
+
+    // Boutons
+    private float resumeX, resumeY, resumeWidth, resumeHeight;
+    private float restartX, restartY, restartWidth, restartHeight;
+    private float menuX, menuY, menuWidth, menuHeight;
 
     public GameScreen(RoguelikeProject game) {
         this.game = game;
@@ -51,11 +58,29 @@ public class GameScreen extends ScreenAdapter {
         player = new Player(gameMap);
         waveManager = new BasicWave(player);
 
-        // Chargement de l'image "Reprendre" et calcul de ses coordonnées centrées
-        resumeBtn = new Texture("assets/jouer2.jpg");
-        resumeX = Gdx.graphics.getWidth() / 2f - resumeBtn.getWidth() / 2f;
-        resumeY = Gdx.graphics.getHeight() / 2f - resumeBtn.getHeight() / 2f;
         elapsedTime = 0f;
+
+        // Chargement images pause
+        pauseBackground = new Texture("assets/black_screen.jpg"); // petit fond noir semi-transparent
+        resumeButton = new Texture("assets/jouer2.jpg");
+        restartButton = new Texture("assets/replay.png");
+        menuButton = new Texture("assets/menu.png");
+
+        // Position et taille des boutons
+        resumeWidth = 200;
+        resumeHeight = 60;
+        resumeX = Gdx.graphics.getWidth() / 2f - resumeWidth / 2;
+        resumeY = Gdx.graphics.getHeight() / 2f + 80;
+
+        restartWidth = 200;
+        restartHeight = 60;
+        restartX = Gdx.graphics.getWidth() / 2f - restartWidth / 2;
+        restartY = Gdx.graphics.getHeight() / 2f;
+
+        menuWidth = 200;
+        menuHeight = 60;
+        menuX = Gdx.graphics.getWidth() / 2f - menuWidth / 2;
+        menuY = Gdx.graphics.getHeight() / 2f - 80;
     }
 
     @Override
@@ -67,7 +92,6 @@ public class GameScreen extends ScreenAdapter {
             return;
         }
 
-        // Détection de la touche Échap pour basculer l'état de pause
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             isPaused = !isPaused;
         }
@@ -75,7 +99,6 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Mise à jour du jeu uniquement si on n'est pas en pause
         if (!isPaused) {
             player.handleInput(delta, projectiles);
             waveManager.update(delta, enemies);
@@ -84,7 +107,6 @@ public class GameScreen extends ScreenAdapter {
             checkEnemyCollisions();
         }
 
-        // Affichage
         batch.begin();
         gameMap.render(batch);
         player.draw(batch);
@@ -94,22 +116,41 @@ public class GameScreen extends ScreenAdapter {
         for (EnemyBase enemy : enemies) {
             enemy.draw(batch);
         }
-        // Si le jeu est en pause, affiche le bouton "Reprendre"
-        if (isPaused) {
-            batch.draw(resumeBtn, resumeX, resumeY);
-        }
         batch.end();
 
         player.drawHealthBarCentered();
 
-        // Si en pause et que l'on clique, vérifie si le bouton "Reprendre" a été cliqué
-        if (isPaused && Gdx.input.justTouched()) {
-            float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        if (isPaused) {
+            renderPauseMenu();
+            handlePauseInput();
+        }
+    }
 
-            if (mouseX >= resumeX && mouseX <= resumeX + resumeBtn.getWidth()
-                && mouseY >= resumeY && mouseY <= resumeY + resumeBtn.getHeight()) {
-                isPaused = false; // Reprend le jeu
+    private void renderPauseMenu() {
+        batch.begin();
+        batch.draw(pauseBackground, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(resumeButton, resumeX, resumeY, resumeWidth, resumeHeight);
+        batch.draw(restartButton, restartX, restartY, restartWidth, restartHeight);
+        batch.draw(menuButton, menuX, menuY, menuWidth, menuHeight);
+        batch.end();
+    }
+
+    private void handlePauseInput() {
+        if (Gdx.input.justTouched()) {
+            int mouseX = Gdx.input.getX();
+            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // inverser Y
+
+            if (mouseX >= resumeX && mouseX <= resumeX + resumeWidth &&
+                mouseY >= resumeY && mouseY <= resumeY + resumeHeight) {
+                isPaused = false;
+            }
+            else if (mouseX >= restartX && mouseX <= restartX + restartWidth &&
+                mouseY >= restartY && mouseY <= restartY + restartHeight) {
+                game.setScreen(new GameScreen(game));
+            }
+            else if (mouseX >= menuX && mouseX <= menuX + menuWidth &&
+                mouseY >= menuY && mouseY <= menuY + menuHeight) {
+                game.setScreen(new MenuScreen(game));
             }
         }
     }
@@ -147,7 +188,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void checkEnemyCollisions() {
-        Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32); // ajuster la taille si besoin
+        Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32);
         for (EnemyBase enemy : enemies) {
             if (playerHitbox.overlaps(enemy.getHitbox()) && !player.getDamageable().isInvincible()) {
                 player.takeDamage(Constants.ENEMY_CONTACT_DAMAGE);
@@ -159,6 +200,9 @@ public class GameScreen extends ScreenAdapter {
     public void dispose() {
         batch.dispose();
         player.dispose();
-        resumeBtn.dispose();
+        pauseBackground.dispose();
+        resumeButton.dispose();
+        restartButton.dispose();
+        menuButton.dispose();
     }
 }
