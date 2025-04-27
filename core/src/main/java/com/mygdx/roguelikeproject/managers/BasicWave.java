@@ -1,8 +1,8 @@
 package com.mygdx.roguelikeproject.managers;
 
 import com.badlogic.gdx.Gdx;
-import com.mygdx.roguelikeproject.entities.DuckEnemy;
-import com.mygdx.roguelikeproject.entities.EnemyBase;
+import com.mygdx.roguelikeproject.entities.enemies.DuckEnemy;
+import com.mygdx.roguelikeproject.entities.enemies.EnemyBase;
 import com.mygdx.roguelikeproject.entities.Player;
 
 import java.util.List;

@@ -1,9 +1,8 @@
+// 📁 Fichier : screens/MenuScreen.java
 package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.roguelikeproject.RoguelikeProject;
@@ -12,13 +11,15 @@ public class MenuScreen implements Screen {
 
     private final RoguelikeProject game;
     private SpriteBatch batch;
-
+    private Texture background;
     private Texture jouerBtn;
     private Texture quitterBtn;
-    private Texture background;
 
-    private float jouerX, jouerY;
-    private float quitterX, quitterY;
+    private float jouerX, quitterX;
+    private float jouerY, quitterY;
+    private final float spacing = 30;
+    private final float scaleX = 0.33f; // largeur réduite
+    private final float scaleY = 0.25f; // hauteur encore plus réduite
 
     public MenuScreen(RoguelikeProject game) {
         this.game = game;
@@ -27,47 +28,49 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
+        background = new Texture("assets/background_menu.png");
+        jouerBtn = new Texture("assets/jouer.png");
+        quitterBtn = new Texture("assets/quitter.png");
 
-        background = new Texture("assets/background.png");
-        jouerBtn = new Texture("assets/jouer2.jpg");
-        quitterBtn = new Texture("assets/quitter2.jpg");
+        float jouerWidth = jouerBtn.getWidth() * scaleX;
+        float quitterWidth = quitterBtn.getWidth() * scaleX;
 
-        // Centrage horizontal, espacement vertical
-        jouerX = Gdx.graphics.getWidth() / 2f - jouerBtn.getWidth() / 2f ;
-        jouerY = Gdx.graphics.getHeight() / 2f ;
+        float totalWidth = jouerWidth + spacing + quitterWidth;
+        float centerX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
 
-        quitterX = Gdx.graphics.getWidth() / 2f - quitterBtn.getWidth() / 2f;
-        quitterY = Gdx.graphics.getHeight() / 2f - 150;
+        jouerX = centerX;
+        quitterX = centerX + jouerWidth + spacing;
+
+        jouerY = quitterY = Gdx.graphics.getHeight() / 3f;
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        float jouerWidth = jouerBtn.getWidth() * scaleX;
+        float jouerHeight = jouerBtn.getHeight() * scaleY;
+        float quitterWidth = quitterBtn.getWidth() * scaleX;
+        float quitterHeight = quitterBtn.getHeight() * scaleY;
 
         batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Dessiner le fond
-        batch.draw(jouerBtn, jouerX, jouerY);
-        batch.draw(quitterBtn, quitterX, quitterY);
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(jouerBtn, jouerX, jouerY, jouerWidth, jouerHeight);
+        batch.draw(quitterBtn, quitterX, quitterY, quitterWidth, quitterHeight);
         batch.end();
 
-        // Clic gauche détecté
         if (Gdx.input.justTouched()) {
             float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // conversion coord écran
+            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            // Bouton Jouer
-            if (mouseX >= jouerX && mouseX <= jouerX + jouerBtn.getWidth()
-                && mouseY >= jouerY && mouseY <= jouerY + jouerBtn.getHeight()) {
+            if (isClicked(mouseX, mouseY, jouerX, jouerY, jouerWidth, jouerHeight)) {
                 game.startGame();
-            }
-
-            // Bouton Quitter
-            if (mouseX >= quitterX && mouseX <= quitterX + quitterBtn.getWidth()
-                && mouseY >= quitterY && mouseY <= quitterY + quitterBtn.getHeight()) {
+            } else if (isClicked(mouseX, mouseY, quitterX, quitterY, quitterWidth, quitterHeight)) {
                 Gdx.app.exit();
             }
         }
+    }
+
+    private boolean isClicked(float mx, float my, float x, float y, float width, float height) {
+        return mx >= x && mx <= x + width && my >= y && my <= y + height;
     }
 
     @Override public void resize(int width, int height) {}

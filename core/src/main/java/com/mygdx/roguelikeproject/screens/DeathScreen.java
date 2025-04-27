@@ -2,28 +2,31 @@ package com.mygdx.roguelikeproject.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.roguelikeproject.RoguelikeProject;
+import com.mygdx.roguelikeproject.utils.BestScoreManager;
 
 public class DeathScreen implements Screen {
 
     private final RoguelikeProject game;
     private final float timeSurvived;
+    private final float bestScore;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
+    private GlyphLayout layout;
 
     private Texture rejouerBtn;
     private Texture accueilBtn;
     private Texture quitterBtn;
     private Texture background;
+    private Texture trophyTexture;
 
-    // Paramètres pour les boutons
     private float btnWidth = 150;
     private float btnHeight = 60;
     private float btnSpacing = 20;
@@ -33,6 +36,8 @@ public class DeathScreen implements Screen {
     public DeathScreen(RoguelikeProject game, float timeSurvived) {
         this.game = game;
         this.timeSurvived = timeSurvived;
+        this.bestScore = BestScoreManager.loadBestScore();
+        BestScoreManager.saveBestScore(timeSurvived);
     }
 
     @Override
@@ -40,16 +45,19 @@ public class DeathScreen implements Screen {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
+        layout = new GlyphLayout();
+
+        font.getData().setScale(2f);
 
         background = new Texture("assets/death_screen.jpeg");
         rejouerBtn = new Texture("assets/replay.png");
         accueilBtn = new Texture("assets/menu.png");
-        quitterBtn = new Texture("assets/quitter2.jpg");
+        quitterBtn = new Texture("assets/quitter.png");
+        trophyTexture = new Texture("assets/trophy.png");
 
-        // Calcul des positions pour aligner les boutons horizontalement
         float totalWidth = 3 * btnWidth + 2 * btnSpacing;
         startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
-        btnY = 50; // Bas de l'écran
+        btnY = 50;
     }
 
     @Override
@@ -62,19 +70,28 @@ public class DeathScreen implements Screen {
         shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.end();
 
+        String timeText = "Temps de survie : " + formatTime(timeSurvived);
+        String bestText = "Meilleur temps : " + formatTime(bestScore);
+
+        layout.setText(font, timeText);
+        float textX = (Gdx.graphics.getWidth() - layout.width) / 2f;
+
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        font.draw(batch, "Temps de survie : " + (int) timeSurvived + "s",
-            Gdx.graphics.getWidth() / 2f - 60, Gdx.graphics.getHeight() - 80);
+        font.draw(batch, timeText, textX, Gdx.graphics.getHeight() - 40);
+        font.draw(batch, bestText, textX, Gdx.graphics.getHeight() - 100);
 
-        // Dessiner les boutons alignés
+        // 🔥 Afficher le trophée à côté du meilleur temps
+        batch.draw(trophyTexture,
+            textX - 70, Gdx.graphics.getHeight() - 130,
+            48, 48); // Taille du trophée forcée à 48x48 pixels propre
+
         batch.draw(rejouerBtn, startX, btnY, btnWidth, btnHeight);
         batch.draw(accueilBtn, startX + btnWidth + btnSpacing, btnY, btnWidth, btnHeight);
         batch.draw(quitterBtn, startX + 2 * (btnWidth + btnSpacing), btnY, btnWidth, btnHeight);
         batch.end();
 
-        // Gérer les clics
         if (Gdx.input.justTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
@@ -87,6 +104,13 @@ public class DeathScreen implements Screen {
                 Gdx.app.exit();
             }
         }
+    }
+
+    private String formatTime(float time) {
+        int totalSeconds = (int) time;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     private boolean isClicked(float mx, float my, float x, float y, float width, float height) {
@@ -107,5 +131,6 @@ public class DeathScreen implements Screen {
         accueilBtn.dispose();
         quitterBtn.dispose();
         background.dispose();
+        trophyTexture.dispose();
     }
 }

@@ -1,6 +1,6 @@
 package com.mygdx.roguelikeproject.managers;
 
-import com.mygdx.roguelikeproject.entities.EnemyBase;
+import com.mygdx.roguelikeproject.entities.enemies.EnemyBase;
 
 import java.util.List;
 

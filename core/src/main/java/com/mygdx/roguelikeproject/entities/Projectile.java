@@ -3,17 +3,19 @@ package com.mygdx.roguelikeproject.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.roguelikeproject.entities.Player.Direction;
+import com.mygdx.roguelikeproject.utils.Direction;
 import com.mygdx.roguelikeproject.utils.Constants;
 import com.mygdx.roguelikeproject.utils.Hitbox;
 
 public class Projectile {
-    private static final float SPEED = 500f;
+    private static final float BASE_SPEED = Constants.PROJECTILE_SPEED;
     private static Texture texture;
     private float x, y;
     private final Direction direction;
     private final float width = 16;
     private final float height = 16;
+
+    private boolean boosted = false;
 
     public Projectile(float x, float y, Direction direction) {
         if (texture == null) {
@@ -25,11 +27,13 @@ public class Projectile {
     }
 
     public void update(float deltaTime) {
+        float speed = boosted ? BASE_SPEED * 1.5f : BASE_SPEED;
+
         switch (direction) {
-            case LEFT -> x -= SPEED * deltaTime;
-            case RIGHT -> x += SPEED * deltaTime;
-            case UP -> y += SPEED * deltaTime;
-            case DOWN -> y -= SPEED * deltaTime;
+            case LEFT -> x -= speed * deltaTime;
+            case RIGHT -> x += speed * deltaTime;
+            case UP -> y += speed * deltaTime;
+            case DOWN -> y -= speed * deltaTime;
         }
     }
 
@@ -49,5 +53,9 @@ public class Projectile {
         if (texture != null) {
             texture.dispose();
         }
+    }
+
+    public void setBoosted(boolean boosted) {
+        this.boosted = boosted;
     }
 }

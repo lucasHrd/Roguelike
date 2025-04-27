@@ -1,4 +1,3 @@
-// 📁 Fichier : entities/Player.java
 package com.mygdx.roguelikeproject.entities;
 
 import com.badlogic.gdx.Gdx;
@@ -14,9 +13,11 @@ import com.mygdx.roguelikeproject.world.GameMap;
 import java.util.List;
 
 public class Player {
+
     private Position position;
     private Direction lastDirection;
     private float stateTime;
+
     private final GameMap gameMap;
     private final Damageable damageable;
     private final MovementSpeed speed;
@@ -27,18 +28,25 @@ public class Player {
     private final Animation<TextureRegion> walkLeftAnimation;
     private final Animation<TextureRegion> walkRightAnimation;
 
-    private final Texture walkUp1, walkUp2, walkDown1, walkDown2, walkLeft1, walkLeft2, walkRight1, walkRight2;
+    private final Texture walkUp1, walkUp2;
+    private final Texture walkDown1, walkDown2;
+    private final Texture walkLeft1, walkLeft2;
+    private final Texture walkRight1, walkRight2;
 
-    public enum Direction { LEFT, RIGHT, UP, DOWN }
+    private float speedResetTimer = 0f;
+    private boolean speedBoostActive = false;
+
+    private boolean projectileBoostActive = false;
+    private float projectileBoostTimer = 0f;
 
     public Player(GameMap gameMap) {
         this.gameMap = gameMap;
-        this.damageable = new Damageable(20, Constants.PLAYER_INVINCIBILITY_DURATION);
+        this.damageable = new Damageable(Constants.PLAYER_HEALTH, Constants.PLAYER_INVINCIBILITY_DURATION);
         this.speed = new MovementSpeed(Constants.PLAYER_BASE_SPEED);
         this.position = new Position(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
-        lastDirection = Direction.UP;
-        stateTime = 0;
-        shapeRenderer = new ShapeRenderer();
+        this.lastDirection = Direction.UP;
+        this.stateTime = 0f;
+        this.shapeRenderer = new ShapeRenderer();
 
         walkUp1 = new Texture("assets/walk_up1.png");
         walkUp2 = new Texture("assets/walk_up2.png");
@@ -58,13 +66,51 @@ public class Player {
     public float getX() { return position.x(); }
     public float getY() { return position.y(); }
     public Damageable getDamageable() { return damageable; }
+    public MovementSpeed getSpeed() { return speed; }
+
+    public void heal(int amount) { damageable.heal(amount); }
+    public void takeDamage(int dmg) { damageable.takeDamage(dmg); }
+    public boolean isDead() { return damageable.isDead(); }
+    public boolean isInvincible() { return damageable.isInvincible(); }
+
+    public void setSpeedModifier(float modifier) {
+        speed.setModifier(modifier);
+    }
+
+    public void scheduleSpeedReset(float delay) {
+        speedResetTimer = delay;
+        speedBoostActive = true;
+    }
+
+    public void boostProjectileFiring(float duration) {
+        projectileBoostActive = true;
+        projectileBoostTimer = duration;
+    }
+
+    public void setProjectileBoost(boolean boosted) {
+        this.projectileBoostActive = boosted;
+    }
 
     public void handleInput(float deltaTime, List<Projectile> projectiles) {
         boolean isMoving = false;
         float newX = position.x();
         float newY = position.y();
-
         float currentSpeed = speed.get();
+
+        if (speedBoostActive) {
+            speedResetTimer -= deltaTime;
+            if (speedResetTimer <= 0f) {
+                speed.resetModifier();
+                speedBoostActive = false;
+            }
+        }
+
+        if (projectileBoostActive) {
+            projectileBoostTimer -= deltaTime;
+            if (projectileBoostTimer <= 0f) {
+                projectileBoostActive = false;
+            }
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.Q)) {
             newX -= currentSpeed * deltaTime;
@@ -87,30 +133,23 @@ public class Player {
             isMoving = true;
         }
 
-        if (!gameMap.isWall((int)newX, (int)newY)) {
+        newX = Math.max(0, Math.min(newX, Gdx.graphics.getWidth() - 32));
+        newY = Math.max(0, Math.min(newY, Gdx.graphics.getHeight() - 32));
+
+        if (!gameMap.isWall((int) newX, (int) newY)) {
             position = new Position(newX, newY);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            projectiles.add(new Projectile(position.x(), position.y(), lastDirection));
+            Projectile projectile = new Projectile(position.x(), position.y(), lastDirection);
+            if (projectileBoostActive) {
+                projectile.setBoosted(true);
+            }
+            projectiles.add(projectile);
         }
 
-        if (isMoving) {
-            stateTime += deltaTime;
-        } else {
-            stateTime = 0;
-        }
-
+        stateTime = isMoving ? stateTime + deltaTime : 0;
         damageable.update(deltaTime);
-    }
-
-    public void takeDamage(int dmg) {
-        damageable.takeDamage(dmg);
-    }
-
-
-    public boolean isDead() {
-        return damageable.isDead();
     }
 
     public void draw(SpriteBatch batch) {
@@ -136,13 +175,18 @@ public class Player {
 
         shapeRenderer.setColor(1, 0, 0, 1);
         shapeRenderer.rect(x, y, barWidth * damageable.getHealthRatio(), barHeight);
-
         shapeRenderer.end();
     }
 
+    public Hitbox getHitbox() {
+        return new Hitbox(position.x(), position.y(), 32, 32);
+    }
+
     public void dispose() {
-        walkUp1.dispose(); walkUp2.dispose(); walkDown1.dispose(); walkDown2.dispose();
-        walkLeft1.dispose(); walkLeft2.dispose(); walkRight1.dispose(); walkRight2.dispose();
+        walkUp1.dispose(); walkUp2.dispose();
+        walkDown1.dispose(); walkDown2.dispose();
+        walkLeft1.dispose(); walkLeft2.dispose();
+        walkRight1.dispose(); walkRight2.dispose();
         shapeRenderer.dispose();
     }
 }
