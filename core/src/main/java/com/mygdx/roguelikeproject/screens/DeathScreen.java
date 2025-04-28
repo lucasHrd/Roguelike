@@ -49,11 +49,11 @@ public class DeathScreen implements Screen {
 
         font.getData().setScale(2f);
 
-        background = new Texture("assets/death_screen.jpeg");
-        rejouerBtn = new Texture("assets/replay.png");
+        background = new Texture("assets/death_background.png");
+        rejouerBtn = new Texture("assets/jouer.png");
         accueilBtn = new Texture("assets/menu.png");
         quitterBtn = new Texture("assets/quitter.png");
-        trophyTexture = new Texture("assets/trophy.png");
+        trophyTexture = new Texture("assets/trophy_2.png");
 
         float totalWidth = 3 * btnWidth + 2 * btnSpacing;
         startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
@@ -71,7 +71,7 @@ public class DeathScreen implements Screen {
         shapeRenderer.end();
 
         String timeText = "Temps de survie : " + formatTime(timeSurvived);
-        String bestText = "Meilleur temps : " + formatTime(bestScore);
+        String bestText = "RECORD  : " + formatTime(bestScore);
 
         layout.setText(font, timeText);
         float textX = (Gdx.graphics.getWidth() - layout.width) / 2f;
@@ -79,28 +79,27 @@ public class DeathScreen implements Screen {
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        font.draw(batch, timeText, textX, Gdx.graphics.getHeight() - 40);
-        font.draw(batch, bestText, textX, Gdx.graphics.getHeight() - 100);
+        font.draw(batch, timeText, textX, Gdx.graphics.getHeight() - 200);
+        font.draw(batch, bestText, textX + 10, Gdx.graphics.getHeight() - 250);
 
         // 🔥 Afficher le trophée à côté du meilleur temps
         batch.draw(trophyTexture,
-            textX - 70, Gdx.graphics.getHeight() - 130,
+            textX - 70, Gdx.graphics.getHeight() - 280,
             48, 48); // Taille du trophée forcée à 48x48 pixels propre
 
-        batch.draw(rejouerBtn, startX, btnY, btnWidth, btnHeight);
-        batch.draw(accueilBtn, startX + btnWidth + btnSpacing, btnY, btnWidth, btnHeight);
-        batch.draw(quitterBtn, startX + 2 * (btnWidth + btnSpacing), btnY, btnWidth, btnHeight);
+        batch.draw(rejouerBtn, startX, btnY, 250, 150);
+        batch.draw(quitterBtn, startX +250, btnY, 250, 150);
         batch.end();
 
         if (Gdx.input.justTouched()) {
             float mouseX = Gdx.input.getX();
             float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-            if (isClicked(mouseX, mouseY, startX, btnY, btnWidth, btnHeight)) {
+            if (isClicked(mouseX, mouseY, startX, btnY, 250, 150)) {
                 game.startGame();
             } else if (isClicked(mouseX, mouseY, startX + btnWidth + btnSpacing, btnY, btnWidth, btnHeight)) {
                 game.returnToMenu();
-            } else if (isClicked(mouseX, mouseY, startX + 2 * (btnWidth + btnSpacing), btnY, btnWidth, btnHeight)) {
+            } else if (isClicked(mouseX, mouseY, startX +250, btnY, 250, 150)) {
                 Gdx.app.exit();
             }
         }

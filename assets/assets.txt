@@ -1,4 +1,5 @@
 7ece69a786ba06d783e0360943c94790.jpg
+PressStart2P.ttf
 Rock1.png
 Run.png
 Walk.png
@@ -14,6 +15,7 @@ blueduck1.png
 blueduck2.png
 bossduck1.png
 bossduck2.png
+death_background.png
 death_screen.jpeg
 default.fnt
 default.png
@@ -21,6 +23,8 @@ duck1.png
 duck2.png
 dungeon_floor.png
 fond_blanc.png
+game_background.png
+game_background2.png
 health_boost.png
 jouer.png
 libgdx.png
@@ -35,6 +39,7 @@ replay.png
 speed_boost.png
 stone1.png
 trophy.png
+trophy_2.png
 uiskin.atlas
 uiskin.json
 uiskin.png

@@ -36,7 +36,7 @@ public class GameScreen extends ScreenAdapter {
     private ItemManager itemManager;
     private float elapsedTime;
     private boolean isPaused = false;
-    private Texture resumeBtn;
+    private Texture resumeBtn, background;
     private float resumeX, resumeY;
     private BitmapFont font;
     private Timer timer;
@@ -60,6 +60,7 @@ public class GameScreen extends ScreenAdapter {
         itemManager = new ItemManager(player);
         timer = new Timer();
 
+        background = new Texture("assets/game_background2.png");
         resumeBtn = new Texture("assets/jouer.png");
         resumeX = Gdx.graphics.getWidth() / 2f - resumeBtn.getWidth() / 2f;
         resumeY = Gdx.graphics.getHeight() / 2f - resumeBtn.getHeight() / 2f;
@@ -91,6 +92,7 @@ public class GameScreen extends ScreenAdapter {
         }
 
         batch.begin();
+        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         gameMap.render(batch);
         player.draw(batch);
 
