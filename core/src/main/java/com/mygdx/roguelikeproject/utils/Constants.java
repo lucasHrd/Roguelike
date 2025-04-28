@@ -4,7 +4,7 @@ package com.mygdx.roguelikeproject.utils;
 public class Constants {
 
     // === PLAYER ===
-    public static final int PLAYER_HEALTH = 50000;
+    public static final int PLAYER_HEALTH = 150;
     public static final float PLAYER_INVINCIBILITY_DURATION = 1.0f;
     public static final float PLAYER_BASE_SPEED = 150f;
 

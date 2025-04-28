@@ -52,6 +52,7 @@ public class Damageable {
         return maxHealth;
     }
 
+
     public void heal(int amount) {
         if (currentHealth > 0) {
             currentHealth = Math.min(currentHealth + amount, maxHealth);

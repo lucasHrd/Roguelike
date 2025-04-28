@@ -55,6 +55,15 @@ public class Projectile {
         }
     }
 
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+
     public void setBoosted(boolean boosted) {
         this.boosted = boosted;
     }

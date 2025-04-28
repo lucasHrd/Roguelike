@@ -163,12 +163,19 @@ public class GameScreen extends ScreenAdapter {
 
     private void checkEnemyCollisions() {
         Hitbox playerHitbox = new Hitbox(player.getX(), player.getY(), 32, 32);
+        int totalDamage = 0;
+
         for (EnemyBase enemy : enemies) {
             if (playerHitbox.overlaps(enemy.getHitbox()) && !player.isInvincible()) {
-                player.takeDamage(Constants.ENEMY_CONTACT_DAMAGE);
+                totalDamage += Constants.ENEMY_CONTACT_DAMAGE;
             }
         }
+
+        if (totalDamage > 0) {
+            player.takeDamage(totalDamage);
+        }
     }
+
 
     private void drawBossHealthBar() {
         float barWidth = Constants.BOSS_HEALTHBAR_WIDTH;
