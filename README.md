@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="./assets/banniere.png" alt="Logo du jeu" width="400"/>
-</p>
-
 # 🕹️ Roguelike Survivor
 > A 2D Roguelike Game developed in Java with LibGDX
 
