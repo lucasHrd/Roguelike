@@ -1,5 +1,4 @@
 7ece69a786ba06d783e0360943c94790.jpg
-PressStart2P.ttf
 Rock1.png
 Run.png
 Walk.png
@@ -9,6 +8,7 @@ background2.jpg
 background3.jpg
 background_menu.png
 balle_left.png
+banniere.png
 best_score.txt
 black_screen.jpg
 blueduck1.png

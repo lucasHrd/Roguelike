@@ -36,10 +36,13 @@ public class GameScreen extends ScreenAdapter {
     private ItemManager itemManager;
     private float elapsedTime;
     private boolean isPaused = false;
-    private Texture resumeBtn, background;
-    private float resumeX, resumeY;
+    private Texture resumeBtn, menuBtn, quitBtn, background;
     private BitmapFont font;
     private Timer timer;
+
+    private float buttonWidth = 150;
+    private float buttonHeight = 60;
+    private float startX, btnY;
 
     public GameScreen(RoguelikeProject game) {
         this.game = game;
@@ -62,8 +65,13 @@ public class GameScreen extends ScreenAdapter {
 
         background = new Texture("assets/game_background2.png");
         resumeBtn = new Texture("assets/jouer.png");
-        resumeX = Gdx.graphics.getWidth() / 2f - resumeBtn.getWidth() / 2f;
-        resumeY = Gdx.graphics.getHeight() / 2f - resumeBtn.getHeight() / 2f;
+        menuBtn = new Texture("assets/menu.png");
+        quitBtn = new Texture("assets/quitter.png");
+
+        float totalWidth = buttonWidth * 3 + 40 * 2; // 3 boutons + 2 espacements
+        startX = (Gdx.graphics.getWidth() - totalWidth) / 2f;
+        btnY = Gdx.graphics.getHeight() / 2f - buttonHeight / 2f;
+
         elapsedTime = 0f;
     }
 
@@ -104,9 +112,6 @@ public class GameScreen extends ScreenAdapter {
         }
         itemManager.draw(batch);
 
-        if (isPaused) {
-            batch.draw(resumeBtn, resumeX, resumeY);
-        }
         font.draw(batch, timer.getFormattedTime(), Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 20);
         batch.end();
 
@@ -120,14 +125,8 @@ public class GameScreen extends ScreenAdapter {
             itemManager.checkPlayerCollision(player);
         }
 
-        if (isPaused && Gdx.input.justTouched()) {
-            float mouseX = Gdx.input.getX();
-            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-            if (mouseX >= resumeX && mouseX <= resumeX + resumeBtn.getWidth()
-                && mouseY >= resumeY && mouseY <= resumeY + resumeBtn.getHeight()) {
-                isPaused = false;
-            }
+        if (isPaused) {
+            drawPauseMenu();
         }
     }
 
@@ -178,6 +177,37 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
+    private void drawPauseMenu() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0, 0, 0, 0.5f);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        batch.begin();
+        batch.draw(resumeBtn, startX, btnY, buttonWidth, buttonHeight);
+        batch.draw(menuBtn, startX + buttonWidth + 40, btnY, buttonWidth, buttonHeight);
+        batch.draw(quitBtn, startX + 2 * (buttonWidth + 40), btnY, buttonWidth, buttonHeight);
+        batch.end();
+
+        if (Gdx.input.justTouched()) {
+            float mouseX = Gdx.input.getX();
+            float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+            if (isClicked(mouseX, mouseY, startX, btnY, buttonWidth, buttonHeight)) {
+                isPaused = false;
+            } else if (isClicked(mouseX, mouseY, startX + buttonWidth + 40, btnY, buttonWidth, buttonHeight)) {
+                game.returnToMenu();
+            } else if (isClicked(mouseX, mouseY, startX + 2 * (buttonWidth + 40), btnY, buttonWidth, buttonHeight)) {
+                Gdx.app.exit();
+            }
+        }
+    }
+
+    private boolean isClicked(float mx, float my, float x, float y, float width, float height) {
+        return mx >= x && mx <= x + width && my >= y && my <= y + height;
+    }
 
     private void drawBossHealthBar() {
         float barWidth = Constants.BOSS_HEALTHBAR_WIDTH;
@@ -201,6 +231,8 @@ public class GameScreen extends ScreenAdapter {
         batch.dispose();
         player.dispose();
         resumeBtn.dispose();
+        menuBtn.dispose();
+        quitBtn.dispose();
         font.dispose();
         shapeRenderer.dispose();
         gameMap.dispose();
