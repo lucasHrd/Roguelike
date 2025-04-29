@@ -79,9 +79,9 @@ Nous avons développé un **roguelike 2D**, dans lequel le joueur doit survivre 
 ---
 ## 📸 Screenshots
 
-| Gameplay | Menu | Autre Vue |
+| Gameplay | Menu | Ecran de Mort |
 |:---:|:---:|:---:|
-| ![Gameplay](./assets/screenshots/gameplay.png) | ![Menu](./assets/screenshots/menu.png) | ![Autre Vue](./assets/screenshots/other_view.png) |
+| ![Gameplay](./assets/gameplay.png) | ![Menu](./assets/playscreen.png) | ![Ecran de Mort](./assets/deathscreen.png) |
 
 
 ## 📝 Synthèse du projet
